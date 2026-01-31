@@ -1,20 +1,12 @@
 [build]
-  publish = "public"  # Folder untuk static files
-  functions = "netlify/functions"  # Folder functions
+  publish = "public"
+  functions = "netlify/functions"
 
 [functions]
-  # Timeout untuk functions (max 10 detik di tier gratis)
   timeout = 10
-  
-  # Memory allocation (default 1024MB)
   memory = 1024
 
 [dev]
-  # Port untuk local development
   port = 8888
-  
-  # Target port untuk functions
   targetPort = 8888
-  
-  # Framework (none untuk static site)
   framework = "#static"
