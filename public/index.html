@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Netlify Functions</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .demo-box { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { padding: 10px 20px; background: #00ad9f; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Demo Netlify Functions</h1>
+    
+    <div class="demo-box">
+        <h3>1. Test Basic Function</h3>
+        <button onclick="testHello()">Test /api/hello</button>
+        <pre id="result1">Klik tombol untuk test</pre>
+    </div>
+    
+    <div class="demo-box">
+        <h3>2. Test Function dengan Parameter</h3>
+        <input type="text" id="nameInput" placeholder="Masukkan nama" value="Budi">
+        <button onclick="testGreet()">Test /api/greet</button>
+        <pre id="result2">-</pre>
+    </div>
+    
+    <div class="demo-box">
+        <h3>3. Demo Location Tracking (Edukasional)</h3>
+        <p><strong>⚠️ PERINGATAN:</strong> Ini hanya demo edukasional. Data tidak dikirim ke server manapun.</p>
+        <button onclick="demoLocation()">Demo Get Location</button>
+        <div id="locationResult" style="margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        // Base URL untuk functions
+        // Saat local: /.netlify/functions/
+        // Saat production: /.netlify/functions/ (atau custom domain)
+        const API_BASE = '/.netlify/functions/';
+        
+        // 1. Test hello function
+        async function testHello() {
+            try {
+                const response = await fetch(API_BASE + 'hello');
+                const data = await response.json();
+                document.getElementById('result1').textContent = 
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result1').textContent = 'Error: ' + error;
+            }
+        }
+        
+        // 2. Test greet function dengan parameter
+        async function testGreet() {
+            const name = document.getElementById('nameInput').value;
+            try {
+                const response = await fetch(`${API_BASE}greet?name=${encodeURIComponent(name)}`);
+                const data = await response.json();
+                document.getElementById('result2').textContent = 
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result2').textContent = 'Error: ' + error;
+            }
+        }
+        
+        // 3. Demo location tracking (EDUKASIONAL)
+        async function demoLocation() {
+            if (!navigator.geolocation) {
+                alert('Browser tidak support geolocation');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const locationData = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toISOString(),
+                        demo: true
+                    };
+                    
+                    // Tampilkan di UI
+                    document.getElementById('locationResult').innerHTML = `
+                        <p><strong>📍 Lokasi Anda:</strong></p>
+                        <p>Latitude: ${locationData.lat}</p>
+                        <p>Longitude: ${locationData.lon}</p>
+                        <p>Akurasi: ${locationData.accuracy} meter</p>
+                        <p><small>Ini hanya demo. Dalam phishing nyata, data ini dikirim ke server hacker.</small></p>
+                    `;
+                    
+                    // Demo mengirim ke Netlify Function (opsional)
+                    try {
+                        const response = await fetch(API_BASE + 'track-location', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(locationData)
+                        });
+                        
+                        const result = await response.json();
+                        console.log('Server response:', result);
+                        
+                        alert('✅ Demo berhasil!\n\nDalam phishing NYATA, lokasi Anda sudah dicuri.\n\nTapi tenang, ini hanya demo edukasional.');
+                    } catch (error) {
+                        console.log('Error dalam demo:', error);
+                    }
+                },
+                (error) => {
+                    alert('Izin lokasi ditolak atau error: ' + error.message);
+                }
+            );
+        }
+    </script>
+</body>
+</html>
